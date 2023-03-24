@@ -5,7 +5,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
-import app.utils as utils
+import app.config as conf
 import app.model as model
 from app.handlers.common import register_handlers_common
 from app.handlers.register import register_handlers_register
@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 async def set_commands(bot: Bot):
+    """Register BOT commands that will be accessible via dropdown menu in telegram"""
     await bot.set_my_commands(
         [
             BotCommand(command="/start", description="Почнімо."),
@@ -30,12 +31,12 @@ async def main():
     )
     logger.info("Starting bot")
 
-    bot = Bot(token=utils.get_bot_token())
+    bot = Bot(token=conf.get_bot_token())
     dp = Dispatcher(bot, storage=MemoryStorage())
 
     model.init_db()
 
-    register_handlers_common(dp, utils.get_admin_id() or 0)
+    register_handlers_common(dp, conf.get_admin_id())
     register_handlers_register(dp)
 
     await set_commands(bot)
