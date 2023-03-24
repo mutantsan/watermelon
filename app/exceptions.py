@@ -1,0 +1,2 @@
+class BotConfigError(Exception):
+    pass
