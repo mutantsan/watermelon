@@ -2,3 +2,6 @@
 .envrc
 
 water.sqlite
+
+__pycache__/
+.pyc
