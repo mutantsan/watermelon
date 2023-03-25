@@ -30,12 +30,6 @@ async def get_water_amount_keyboard() -> types.ReplyKeyboardMarkup:
 
 
 async def drink_water(message: types.Message, state: FSMContext):
-    if not utils.get_user(message.from_user.id):
-        await message.answer(
-            "Ви не зареєстровані. Натисність /register, щоб продовжити.",
-            reply_markup=types.ReplyKeyboardRemove(),
-        )
-
     await message.answer(
         "Скільки води ви випили?", reply_markup=await get_water_amount_keyboard()
     )

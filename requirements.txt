@@ -1,3 +1,3 @@
-aiogram==2.22.1
+aiogram==2.25.1
 sqlalchemy
 typing_extensions

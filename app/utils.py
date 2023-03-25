@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, date
 from typing import Any
 
+from aiogram import types
 
 import app.const as const
 from app.model import Session, User, Drinks
@@ -65,3 +66,15 @@ def calculate_user_norm(user_id: int) -> int:
     climate_value = const.CLIMATE_MAP[user.climate]
 
     return int(weight * 35 * climate_value * activity_value)
+
+
+def get_user_appeal(user: types.User) -> str:
+    """Get a proper way to address the user"""
+    user_appeal = "друже"
+
+    if user.first_name or user.last_name:
+        user_appeal = f"{user.first_name or ''} {user.last_name or ''}"
+    elif user.username:
+        user_appeal = user.username
+
+    return user_appeal

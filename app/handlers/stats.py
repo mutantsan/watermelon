@@ -11,12 +11,6 @@ def register_handlers_stats(dp: Dispatcher):
 async def cmd_today(message: types.Message):
     user: types.User = message.from_user
 
-    if not utils.get_user(user.id):
-        return await message.answer(
-            "Ви не зареєстровані. Натисність /register, щоб продовжити.",
-            reply_markup=types.ReplyKeyboardRemove(),
-        )
-
     amount: int = utils.get_today_drinks(user.id)
     norm: int = utils.calculate_user_norm(user.id)
 

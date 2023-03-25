@@ -7,6 +7,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 import app.config as conf
 import app.model as model
+from app.middleware import RegisterMiddleware
 from app.handlers import (
     register_handlers_drink,
     register_handlers_register,
@@ -35,7 +36,7 @@ async def main():
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
     )
-    logger.info("Starting bot")
+    logger.info("Starting watermelon bot")
 
     bot = Bot(token=conf.get_bot_token())
     dp = Dispatcher(bot, storage=MemoryStorage())
@@ -47,6 +48,7 @@ async def main():
     register_handlers_drink(dp)
     register_handlers_stats(dp)
 
+    dp.middleware.setup(RegisterMiddleware())
     await set_commands(bot)
     await dp.skip_updates()
     await dp.start_polling()
