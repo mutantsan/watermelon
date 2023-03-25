@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from typing import Optional
 from datetime import datetime
 from uuid import uuid4
@@ -18,6 +19,7 @@ from typing_extensions import Self
 from app.config import is_debug_enabled
 
 
+logger = logging.getLogger(__name__)
 engine = create_engine("sqlite:///water.sqlite")
 Session = scoped_session(
     sessionmaker(
@@ -74,5 +76,8 @@ class Drinks(Base):
 def init_db():
     """Initialize DB tables"""
     if is_debug_enabled():
+        logging.info("Database has been cleared")
         Base.metadata.drop_all(engine)
+
     Base.metadata.create_all(engine)
+    logging.info("Database has been initialized")

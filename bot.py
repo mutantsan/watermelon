@@ -29,6 +29,7 @@ async def set_commands(bot: Bot):
             BotCommand(command="/register", description="Реєстрація."),
             BotCommand(command="/drink", description="Випити водички."),
             BotCommand(command="/today", description="Скільки я сьогодні випив?"),
+            BotCommand(command="/cancel", description="Скасувати дію."),
         ]
     )
 
@@ -58,7 +59,7 @@ async def main():
 
     # Setup task scheduler
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(jobs.notify_job, "interval", seconds=15)
+    scheduler.add_job(jobs.notify_job, "interval", minutes=15)
 
     # from datetime import datetime, timedelta
     # scheduler.add_job(jobs.notify_job, 'date', run_date=datetime.now() + timedelta(seconds=5))

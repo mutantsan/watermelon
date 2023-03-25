@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import os
+import logging
 
 from app.exceptions import BotConfigError
 from app.const import BOT_TOKEN, ADMIN_ID, DEBUG_MODE
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_bot_token() -> str:
@@ -33,4 +37,10 @@ def get_admin_id() -> int:
 
 def is_debug_enabled() -> bool:
     """Check if debug mode is enabled"""
-    return bool(os.environ.get(DEBUG_MODE))
+
+    debug = bool(os.environ.get(DEBUG_MODE))
+
+    if debug:
+        logger.info("Debug mode is enabled")
+
+    return debug

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from datetime import datetime, date
 from typing import Any
 
@@ -11,12 +12,16 @@ import app.const as const
 from app.model import Session, User, Drinks
 
 
+logger = logging.getLogger(__name__)
+
+
 def create_user(user_data: dict[str, Any]) -> User:
     """Create a user withing database"""
     user: User = User(**user_data)
     Session.add(user)
     Session.commit()
 
+    logger.info(f"{user} has been created")
     return user
 
 
@@ -91,3 +96,5 @@ async def send_notification(message: str, chat_id: int) -> None:
     url: str = f"https://api.telegram.org/bot{conf.get_bot_token()}/sendMessage"
 
     requests.post(url, json={"chat_id": chat_id, "text": message})
+
+    logger.info(f"Notification to user {chat_id} has been sent")

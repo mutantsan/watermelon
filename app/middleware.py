@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import logging
+
 from aiogram import types
 from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.dispatcher.handler import CancelHandler
 
 import app.utils as utils
+
+
+logger = logging.getLogger(__name__)
 
 
 class RegisterMiddleware(BaseMiddleware):
@@ -17,6 +22,7 @@ class RegisterMiddleware(BaseMiddleware):
         user: types.User = message.from_user
 
         if not utils.get_user(user.id):
+            logger.info(f"User {user.id} {user.username or ''} isn't registered")
             await message.answer(
                 "Ви не зареєстровані. Натисність /register, щоб продовжити.",
                 reply_markup=types.ReplyKeyboardRemove(),
