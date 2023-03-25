@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import inspect
 
 from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand
@@ -10,12 +11,7 @@ import app.jobs as jobs
 import app.config as conf
 import app.model as model
 from app.middleware import RegisterMiddleware
-from app.handlers import (
-    register_handlers_drink,
-    register_handlers_register,
-    register_handlers_common,
-    register_handlers_stats,
-)
+from app.handlers import get_handlers
 
 
 logger = logging.getLogger(__name__)
@@ -28,7 +24,9 @@ async def set_commands(bot: Bot):
             BotCommand(command="/start", description="Почнімо."),
             BotCommand(command="/register", description="Реєстрація."),
             BotCommand(command="/drink", description="Випити водички."),
-            BotCommand(command="/today", description="Скільки я сьогодні випив?"),
+            BotCommand(
+                command="/today", description="Скільки я сьогодні випив?"
+            ),
             BotCommand(command="/cancel", description="Скасувати дію."),
         ]
     )
@@ -44,12 +42,15 @@ async def main():
     bot = Bot(token=conf.get_bot_token())
     dp = Dispatcher(bot, storage=MemoryStorage())
 
+    # Initialize database
     model.init_db()
 
-    register_handlers_common(dp, conf.get_admin_id())
-    register_handlers_register(dp)
-    register_handlers_drink(dp)
-    register_handlers_stats(dp)
+    # Register handlers
+    for handler in get_handlers():
+        if len(inspect.getfullargspec(handler).args) == 2:
+            handler(dp, conf.get_admin_id())  # type: ignore
+        else:
+            handler(dp)  # type: ignore
 
     # Setup Middlewares
     dp.middleware.setup(RegisterMiddleware())

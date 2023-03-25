@@ -83,7 +83,7 @@ async def confirmation(message: types.Message, state: FSMContext):
     norm: int = utils.calculate_user_norm(user.id)
 
     await message.answer(
-        f"Обсяг випитої води внесено - {data['amount']}. Сьогодні ви випили вже {today_total}/{norm}мл",
+        f"Обсяг випитої води внесено - {data['amount']}. Сьогодні ви випили вже {today_total}/{norm} мл.",
         reply_markup=types.ReplyKeyboardRemove(),
     )
     await state.finish()
