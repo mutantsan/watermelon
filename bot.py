@@ -61,10 +61,6 @@ async def main():
     # Setup task scheduler
     scheduler = AsyncIOScheduler()
     scheduler.add_job(jobs.notify_job, "interval", minutes=15)
-
-    # from datetime import datetime, timedelta
-    # scheduler.add_job(jobs.notify_job, 'date', run_date=datetime.now() + timedelta(seconds=5))
-
     scheduler.start()
 
     await dp.skip_updates()

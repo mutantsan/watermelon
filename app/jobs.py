@@ -9,6 +9,9 @@ import app.const as const
 
 async def notify_job():
     """Notify user if he didn't drink for N hours"""
+    if await _is_night():
+        return
+
     users: list[model.User] = model.User.all()
 
     for user in users:
@@ -26,7 +29,9 @@ async def notify_job():
         time_passed: float = (
             datetime.now() - last_drink.timestamp
         ).total_seconds()
-        today_total: int = sum(d.amount for d in utils.get_today_drinks(user.id))
+        today_total: int = sum(
+            d.amount for d in utils.get_today_drinks(user.id)
+        )
         norm: int = utils.calculate_user_norm(user.id)
 
         if today_total >= norm:
@@ -40,3 +45,10 @@ async def notify_job():
                 ),
                 user.id,
             )
+
+
+async def _is_night() -> bool:
+    """Check if it's too late to send notifications"""
+    current_hour: int = datetime.now().hour
+
+    return current_hour >= 22 or current_hour < 8
