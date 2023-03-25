@@ -35,7 +35,7 @@ class User(Base):
     __tablename__ = "user"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(types.String, nullable=False, unique=True)
+    name: Mapped[str] = mapped_column(types.String, nullable=True)
     fullname: Mapped[Optional[str]]
     weight: Mapped[int]
     climate: Mapped[str]
@@ -45,7 +45,7 @@ class User(Base):
         return f"User(id={self.id}, name={self.name})"
 
     @classmethod
-    def get(cls, user_reference: Optional[str]) -> Optional[Self]:
+    def get(cls, user_reference: Optional[int]) -> Optional[Self]:
         query = Session.query(cls).autoflush(False)
         query = query.filter(cls.id == user_reference)
         return query.first()
@@ -60,6 +60,9 @@ class Drinks(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
     timestamp: Mapped[datetime] = mapped_column(types.DateTime, nullable=False)
     amount: Mapped[int] = mapped_column(types.Integer, nullable=False)
+
+    def __repr__(self) -> str:
+        return f"User(id={self.user_id}, date={self.timestamp}, amount={self.amount})"
 
 
 def init_db():

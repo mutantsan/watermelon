@@ -7,8 +7,12 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 import app.config as conf
 import app.model as model
-from app.handlers.common import register_handlers_common
-from app.handlers.register import register_handlers_register
+from app.handlers import (
+    register_handlers_drink,
+    register_handlers_register,
+    register_handlers_common,
+    register_handlers_stats
+)
 
 
 logger = logging.getLogger(__name__)
@@ -20,6 +24,8 @@ async def set_commands(bot: Bot):
         [
             BotCommand(command="/start", description="Почнімо."),
             BotCommand(command="/register", description="Реєстрація."),
+            BotCommand(command="/drink", description="Випити водички."),
+            BotCommand(command="/today", description="Скільки я сьогодні випив?"),
         ]
     )
 
@@ -38,6 +44,8 @@ async def main():
 
     register_handlers_common(dp, conf.get_admin_id())
     register_handlers_register(dp)
+    register_handlers_drink(dp)
+    register_handlers_stats(dp)
 
     await set_commands(bot)
     await dp.skip_updates()

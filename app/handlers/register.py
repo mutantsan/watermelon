@@ -85,7 +85,7 @@ async def weight_provided(message: types.Message, state: FSMContext):
         keyboard.add(answer)
 
     await state.set_state(Registration.confirmation.state)
-    await message.answer("Все вірно?:", reply_markup=keyboard)
+    await message.answer("Все вірно?", reply_markup=keyboard)
 
 
 async def need_confirm(message: types.Message, state: FSMContext):

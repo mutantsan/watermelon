@@ -19,8 +19,15 @@ async def cmd_start(message: types.Message, state: FSMContext):
 
     user: types.User = message.from_user
 
-    if user_data := utils.get_user(user.id):
-        await message.answer(f"Вітаю, {user_data.name}!")
+    if utils.get_user(user.id):
+        user_appeal = "друже"
+
+        if user.first_name or user.last_name:
+            user_appeal = f"{user.first_name or ''} {user.last_name or ''}"
+        elif user.username:
+            user_appeal = user.username
+
+        await message.answer(f"Вітаю, {user_appeal}!")
         return
 
     await message.answer(
