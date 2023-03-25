@@ -21,11 +21,10 @@ async def notify_job():
                 f"Ви сьогодні ще не пили. Зробіть це зараз /drink", user.id
             )
 
-        time_passed: float = (
-            datetime.now() - last_drink.timestamp
-        ).total_seconds()
+        time_passed: float = (datetime.now() - last_drink.timestamp).total_seconds()
 
         if time_passed >= treshold:
             await utils.send_notification(
-                f"Ви не пили вже {int(time_passed//const.HOUR)} годин(и). Зробіть це зараз /drink", user.id
+                f"Ви не пили вже {int(time_passed//const.HOUR)} годин(и). Зробіть це зараз /drink",
+                user.id,
             )

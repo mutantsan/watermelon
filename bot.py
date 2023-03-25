@@ -14,7 +14,7 @@ from app.handlers import (
     register_handlers_drink,
     register_handlers_register,
     register_handlers_common,
-    register_handlers_stats
+    register_handlers_stats,
 )
 
 
@@ -68,7 +68,6 @@ async def main():
 
     await dp.skip_updates()
     await dp.start_polling()
-
 
 
 if __name__ == "__main__":
