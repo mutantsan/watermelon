@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 from aiogram import types
 from aiogram.dispatcher.middlewares import BaseMiddleware
@@ -13,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class RegisterMiddleware(BaseMiddleware):
-    async def on_process_message(self, message: types.Message, data: dict):
+    async def on_process_message(self, message: types.Message, data: dict[str, Any]):
         if (message.get_command() == "/register") or (
             "Registration" in data.get("raw_state", "")
         ):

@@ -1,4 +1,5 @@
-from curses.ascii import isdigit
+from typing import Any
+
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -74,7 +75,7 @@ async def confirmation(message: types.Message, state: FSMContext):
         await drink_water(message, state)
         return
 
-    data = await state.get_data()
+    data: dict[str, Any] = await state.get_data()
     user: types.User = message.from_user
 
     utils.update_water_consumption(user.id, data["amount"])

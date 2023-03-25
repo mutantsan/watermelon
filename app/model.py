@@ -40,10 +40,10 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(types.String, nullable=True)
-    fullname: Mapped[Optional[str]]
-    weight: Mapped[int]
-    climate: Mapped[str]
-    activity: Mapped[str]
+    fullname: Mapped[Optional[str]] = mapped_column(types.String)
+    weight: Mapped[int] = mapped_column(types.Integer)
+    climate: Mapped[str] = mapped_column(types.String)
+    activity: Mapped[str] = mapped_column(types.String)
 
     def __repr__(self) -> str:
         return f"User(id={self.id}, name={self.name})"

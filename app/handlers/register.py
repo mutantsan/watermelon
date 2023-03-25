@@ -1,3 +1,5 @@
+from typing import Any
+
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -32,14 +34,17 @@ async def register_start(message: types.Message, state: FSMContext):
         keyboard.add(activity)
 
     await message.answer("Почнімо процес реєстрації!")
-    await message.answer("Оберіть ваш рівень активності:", reply_markup=keyboard)
+    await message.answer(
+        "Оберіть ваш рівень активності:", reply_markup=keyboard
+    )
     await state.set_state(Registration.user_activity.state)
 
 
 async def activity_chosen(message: types.Message, state: FSMContext):
     if message.text.lower() not in ACTIVITIES:
         await message.answer(
-            "Будь ласка, оберіть рівень активності, за допомогою клавіатури нижче."
+            "Будь ласка, оберіть рівень активності, за допомогою клавіатури"
+            " нижче."
         )
         return
 
@@ -56,14 +61,17 @@ async def activity_chosen(message: types.Message, state: FSMContext):
 async def climate_chosen(message: types.Message, state: FSMContext):
     if message.text.lower() not in CLIMATES:
         await message.answer(
-            "Будь ласка, оберіть тип вашого клімату, за допомогою клавіатури нижче."
+            "Будь ласка, оберіть тип вашого клімату, за допомогою клавіатури"
+            " нижче."
         )
         return
 
     await state.update_data(climate=message.text.lower())
 
     await state.set_state(Registration.user_weight.state)
-    await message.answer("Введіть вашу вагу:", reply_markup=types.ReplyKeyboardRemove())
+    await message.answer(
+        "Введіть вашу вагу:", reply_markup=types.ReplyKeyboardRemove()
+    )
 
 
 async def weight_provided(message: types.Message, state: FSMContext):
@@ -72,10 +80,10 @@ async def weight_provided(message: types.Message, state: FSMContext):
         return
 
     await state.update_data(weight=int(message.text.lower()))
-    data = await state.get_data()
+    data: dict[str, Any] = await state.get_data()
 
     await message.answer(
-        f"Ви вказали наступні дані. "
+        "Ви вказали наступні дані. "
         f"Активність: {data['activity']}, Клімат: {data['climate']}, "
         f"Вага: {data['weight']}. "
     )
@@ -95,7 +103,7 @@ async def need_confirm(message: types.Message, state: FSMContext):
         await register_start(message, state)
         return
 
-    data = await state.get_data()
+    data: dict[str, Any] = await state.get_data()
     user: types.User = message.from_user
 
     data.update(
@@ -107,14 +115,21 @@ async def need_confirm(message: types.Message, state: FSMContext):
     utils.create_user(data)
 
     await message.answer(
-        f"Користувач успішно створений!", reply_markup=types.ReplyKeyboardRemove()
+        f"Користувач успішно створений!",
+        reply_markup=types.ReplyKeyboardRemove(),
     )
     await state.finish()
 
 
 def register_handlers_register(dp: Dispatcher):
     dp.register_message_handler(register_start, commands="register", state="*")
-    dp.register_message_handler(activity_chosen, state=Registration.user_activity)
-    dp.register_message_handler(climate_chosen, state=Registration.user_climate)
-    dp.register_message_handler(weight_provided, state=Registration.user_weight)
+    dp.register_message_handler(
+        activity_chosen, state=Registration.user_activity
+    )
+    dp.register_message_handler(
+        climate_chosen, state=Registration.user_climate
+    )
+    dp.register_message_handler(
+        weight_provided, state=Registration.user_weight
+    )
     dp.register_message_handler(need_confirm, state=Registration.confirmation)
