@@ -3,8 +3,10 @@ from __future__ import annotations
 from datetime import datetime, date
 from typing import Any
 
+import requests
 from aiogram import types
 
+import app.config as conf
 import app.const as const
 from app.model import Session, User, Drinks
 
@@ -30,7 +32,7 @@ def update_water_consumption(user_id: int, amount: int) -> None:
     Session.commit()
 
 
-def get_today_drinks(user_id: int) -> int:
+def get_today_drinks(user_id: int) -> list[Drinks]:
     today: date = date.today()
 
     drinks: list[Drinks] = (
@@ -42,10 +44,11 @@ def get_today_drinks(user_id: int) -> int:
                 datetime.combine(today, datetime.max.time()),
             )
         )
+        .order_by(Drinks.timestamp)
         .all()
     )
 
-    return sum(d.amount for d in drinks)
+    return drinks
 
 
 def calculate_user_norm(user_id: int) -> int:
@@ -78,3 +81,13 @@ def get_user_appeal(user: types.User) -> str:
         user_appeal = user.username
 
     return user_appeal
+
+
+async def send_notification(message: str, chat_id: int) -> None:
+    """
+    Sends notification to users with a specific message
+    """
+
+    url: str = f"https://api.telegram.org/bot{conf.get_bot_token()}/sendMessage"
+
+    requests.post(url, json={"chat_id": chat_id, "text": message})

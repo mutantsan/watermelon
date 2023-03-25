@@ -9,7 +9,9 @@ import app.utils as utils
 
 class RegisterMiddleware(BaseMiddleware):
     async def on_process_message(self, message: types.Message, data: dict):
-        if message.get_command() == "/register":
+        if (message.get_command() == "/register") or (
+            "Registration" in data.get("raw_state", "")
+        ):
             return
 
         user: types.User = message.from_user

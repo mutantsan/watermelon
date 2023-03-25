@@ -78,7 +78,7 @@ async def confirmation(message: types.Message, state: FSMContext):
     user: types.User = message.from_user
 
     utils.update_water_consumption(user.id, data["amount"])
-    today_total: int = utils.get_today_drinks(user.id)
+    today_total: int = sum(d.amount for d in utils.get_today_drinks(user.id))
     norm: int = utils.calculate_user_norm(user.id)
 
     await message.answer(

@@ -4,7 +4,9 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
+import app.jobs as jobs
 import app.config as conf
 import app.model as model
 from app.middleware import RegisterMiddleware
@@ -48,10 +50,24 @@ async def main():
     register_handlers_drink(dp)
     register_handlers_stats(dp)
 
+    # Setup Middlewares
     dp.middleware.setup(RegisterMiddleware())
+
+    # Setup BOT commands
     await set_commands(bot)
+
+    # Setup task scheduler
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(jobs.notify_job, "interval", seconds=15)
+
+    # from datetime import datetime, timedelta
+    # scheduler.add_job(jobs.notify_job, 'date', run_date=datetime.now() + timedelta(seconds=5))
+
+    scheduler.start()
+
     await dp.skip_updates()
     await dp.start_polling()
+
 
 
 if __name__ == "__main__":

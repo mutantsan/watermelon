@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Optional
 from datetime import datetime
 from uuid import uuid4
@@ -49,6 +51,10 @@ class User(Base):
         query = Session.query(cls).autoflush(False)
         query = query.filter(cls.id == user_reference)
         return query.first()
+
+    @classmethod
+    def all(cls) -> list[Self]:
+        return Session.query(cls).all()
 
 
 class Drinks(Base):
