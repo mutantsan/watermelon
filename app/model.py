@@ -70,7 +70,10 @@ class Drinks(Base):
     amount: Mapped[int] = mapped_column(types.Integer, nullable=False)
 
     def __repr__(self) -> str:
-        return f"User(id={self.user_id}, date={self.timestamp}, amount={self.amount})"
+        return (
+            f"User(id={self.user_id}, date={self.timestamp},"
+            f" amount={self.amount})"
+        )
 
 
 def init_db():

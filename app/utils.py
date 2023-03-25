@@ -31,7 +31,9 @@ def get_user(user_id: int) -> User | None:
 
 
 def update_water_consumption(user_id: int, amount: int) -> None:
-    drink: Drinks = Drinks(user_id=user_id, timestamp=datetime.now(), amount=amount)
+    drink: Drinks = Drinks(
+        user_id=user_id, timestamp=datetime.now(), amount=amount
+    )
 
     Session.add(drink)
     Session.commit()
@@ -93,7 +95,9 @@ async def send_notification(message: str, chat_id: int) -> None:
     Sends notification to users with a specific message
     """
 
-    url: str = f"https://api.telegram.org/bot{conf.get_bot_token()}/sendMessage"
+    url: str = (
+        f"https://api.telegram.org/bot{conf.get_bot_token()}/sendMessage"
+    )
 
     requests.post(url, json={"chat_id": chat_id, "text": message})
 

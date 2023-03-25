@@ -32,7 +32,8 @@ async def get_water_amount_keyboard() -> types.ReplyKeyboardMarkup:
 
 async def drink_water(message: types.Message, state: FSMContext):
     await message.answer(
-        "Скільки води ви випили?", reply_markup=await get_water_amount_keyboard()
+        "Скільки води ви випили?",
+        reply_markup=await get_water_amount_keyboard(),
     )
     await state.set_state(Drink.drink_water.state)
 
@@ -83,7 +84,10 @@ async def confirmation(message: types.Message, state: FSMContext):
     norm: int = utils.calculate_user_norm(user.id)
 
     await message.answer(
-        f"Обсяг випитої води внесено - {data['amount']}. Сьогодні ви випили вже {today_total}/{norm} мл.",
+        (
+            f"Обсяг випитої води внесено - {data['amount']}. Сьогодні ви"
+            f" випили вже {today_total}/{norm} мл."
+        ),
         reply_markup=types.ReplyKeyboardRemove(),
     )
     await state.finish()

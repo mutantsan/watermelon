@@ -14,17 +14,24 @@ async def notify_job():
     for user in users:
         treshold: int = const.HOUR * 2
         user_drinks: list[model.Drinks] = utils.get_today_drinks(user.id)
-        last_drink: model.Drinks | None = user_drinks[-1] if user_drinks else None
+        last_drink: model.Drinks | None = (
+            user_drinks[-1] if user_drinks else None
+        )
 
         if not last_drink:
             return await utils.send_notification(
                 f"Ви сьогодні ще не пили. Зробіть це зараз /drink", user.id
             )
 
-        time_passed: float = (datetime.now() - last_drink.timestamp).total_seconds()
+        time_passed: float = (
+            datetime.now() - last_drink.timestamp
+        ).total_seconds()
 
         if time_passed >= treshold:
             await utils.send_notification(
-                f"Ви не пили вже {int(time_passed//const.HOUR)} годин(и). Зробіть це зараз /drink",
+                (
+                    f"Ви не пили вже {int(time_passed//const.HOUR)} годин(и)."
+                    " Зробіть це зараз /drink"
+                ),
                 user.id,
             )

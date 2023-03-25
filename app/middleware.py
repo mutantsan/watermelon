@@ -14,7 +14,9 @@ logger = logging.getLogger(__name__)
 
 
 class RegisterMiddleware(BaseMiddleware):
-    async def on_process_message(self, message: types.Message, data: dict[str, Any]):
+    async def on_process_message(
+        self, message: types.Message, data: dict[str, Any]
+    ):
         if (message.get_command() == "/register") or (
             "Registration" in data.get("raw_state", "")
         ):
@@ -23,7 +25,9 @@ class RegisterMiddleware(BaseMiddleware):
         user: types.User = message.from_user
 
         if not utils.get_user(user.id):
-            logger.info(f"User {user.id} {user.username or ''} isn't registered")
+            logger.info(
+                f"User {user.id} {user.username or ''} isn't registered"
+            )
             await message.answer(
                 "Ви не зареєстровані. Натисність /register, щоб продовжити.",
                 reply_markup=types.ReplyKeyboardRemove(),
