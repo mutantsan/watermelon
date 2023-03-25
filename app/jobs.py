@@ -26,6 +26,11 @@ async def notify_job():
         time_passed: float = (
             datetime.now() - last_drink.timestamp
         ).total_seconds()
+        today_total: int = sum(d.amount for d in utils.get_today_drinks(user.id))
+        norm: int = utils.calculate_user_norm(user.id)
+
+        if today_total >= norm:
+            return
 
         if time_passed >= treshold:
             await utils.send_notification(
