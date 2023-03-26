@@ -91,7 +91,7 @@ class Drinks(Base):
 
 def init_db():
     """Initialize DB tables"""
-    if 1:
+    if is_debug_enabled():
         logging.info("Database has been cleared")
         Base.metadata.drop_all(engine)
 
