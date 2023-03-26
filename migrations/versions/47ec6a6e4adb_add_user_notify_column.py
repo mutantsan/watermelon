@@ -17,7 +17,9 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column("user", sa.Column("notify", sa.Boolean()))
+    op.add_column(
+        "user", sa.Column("notify", sa.Boolean(), unique=False, default=True)
+    )
 
 
 def downgrade() -> None:

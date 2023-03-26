@@ -32,9 +32,7 @@ def get_user(user_id: int) -> User | None:
 
 
 def update_water_consumption(user_id: int, amount: int) -> None:
-    drink: Drinks = Drinks(
-        user_id=user_id, timestamp=get_current_time(), amount=amount
-    )
+    drink: Drinks = Drinks(user_id=user_id, amount=amount)
 
     Session.add(drink)
     Session.commit()
@@ -105,6 +103,6 @@ async def send_notification(message: str, chat_id: int) -> None:
     logger.info(f"Notification to user {chat_id} has been sent")
 
 
-def get_current_time() -> datetime:
+def get_local_time() -> datetime:
     kiyv_tz: Any = pytz.timezone("Europe/Kiev")
     return datetime.now(kiyv_tz)

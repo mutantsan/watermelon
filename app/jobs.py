@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import datetime
+
 import app.utils as utils
 import app.model as model
 import app.const as const
@@ -28,7 +30,7 @@ async def notify_job():
             )
 
         time_passed: float = (
-            utils.get_current_time() - last_drink.timestamp
+            datetime.utcnow() - last_drink.timestamp
         ).total_seconds()
         today_total: int = sum(
             d.amount for d in utils.get_today_drinks(user.id)
@@ -38,7 +40,7 @@ async def notify_job():
         if today_total >= norm:
             return
 
-        if time_passed >= treshold:
+        if abs(time_passed) >= treshold:
             await utils.send_notification(
                 (
                     f"Ви не пили вже {int(time_passed//const.HOUR)} годин(и)."
@@ -50,6 +52,6 @@ async def notify_job():
 
 def _is_night() -> bool:
     """Check if it's too late to send notifications"""
-    current_hour: int = utils.get_current_time().hour
+    local_time: int = utils.get_local_time().hour
 
-    return current_hour >= 22 or current_hour < 8
+    return local_time >= 22 or local_time < 8

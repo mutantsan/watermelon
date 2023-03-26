@@ -19,5 +19,5 @@ def get_handlers() -> (
         register_handlers_drink,
         register_handlers_register,
         register_handlers_stats,
-        register_handlers_settings
+        register_handlers_settings,
     ]

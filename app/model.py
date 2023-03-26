@@ -39,12 +39,14 @@ class User(Base):
     __tablename__ = "user"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(types.String, nullable=True)
+    name: Mapped[str] = mapped_column(types.String)
     fullname: Mapped[Optional[str]] = mapped_column(types.String)
-    weight: Mapped[int] = mapped_column(types.Integer)
-    climate: Mapped[str] = mapped_column(types.String)
-    activity: Mapped[str] = mapped_column(types.String)
-    # notify: Mapped[bool] = mapped_column(types.Boolean, default=True)
+    weight: Mapped[int] = mapped_column(types.Integer, nullable=False)
+    climate: Mapped[str] = mapped_column(types.String, nullable=False)
+    activity: Mapped[str] = mapped_column(types.String, nullable=False)
+    notify: Mapped[bool] = mapped_column(
+        types.Boolean, default=True, nullable=False
+    )
 
     def __repr__(self) -> str:
         return f"User(id={self.id}, name={self.name})"
@@ -78,9 +80,11 @@ class Drinks(Base):
     id: Mapped[str] = mapped_column(
         types.Text(length=36), primary_key=True, default=lambda: str(uuid4())
     )
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
-    timestamp: Mapped[datetime] = mapped_column(types.DateTime, nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
     amount: Mapped[int] = mapped_column(types.Integer, nullable=False)
+    timestamp: Mapped[datetime] = mapped_column(
+        types.DateTime, nullable=False, default=datetime.utcnow
+    )
 
     def __repr__(self) -> str:
         return (
