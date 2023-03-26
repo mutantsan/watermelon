@@ -13,6 +13,9 @@ async def notify_job():
     users: list[model.User] = model.User.all()
 
     for user in users:
+        if not user.notify:
+            return
+
         treshold: int = const.HOUR * 2
         user_drinks: list[model.Drinks] = utils.get_today_drinks(user.id)
         last_drink: model.Drinks | None = (

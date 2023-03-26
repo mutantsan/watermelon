@@ -27,6 +27,7 @@ async def set_commands(bot: Bot):
             BotCommand(
                 command="/today", description="Скільки я сьогодні випив?"
             ),
+            BotCommand(command="/settings", description="Налаштування."),
             BotCommand(command="/cancel", description="Скасувати дію."),
         ]
     )

@@ -106,10 +106,5 @@ async def send_notification(message: str, chat_id: int) -> None:
 
 
 def get_current_time() -> datetime:
-    from pytz import _UTCclass # type: ignore
-    from pytz.tzinfo import StaticTzInfo, DstTzInfo
-
-    kiyv_tz: _UTCclass | StaticTzInfo | DstTzInfo = pytz.timezone(
-        "Europe/Kiev"
-    )
+    kiyv_tz: Any = pytz.timezone("Europe/Kiev")
     return datetime.now(kiyv_tz)

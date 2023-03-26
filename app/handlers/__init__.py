@@ -8,6 +8,7 @@ from app.handlers.common import register_handlers_common
 from app.handlers.register import register_handlers_register
 from app.handlers.drink import register_handlers_drink
 from app.handlers.stats import register_handlers_stats
+from app.handlers.settings import register_handlers_settings
 
 
 def get_handlers() -> (
@@ -18,4 +19,5 @@ def get_handlers() -> (
         register_handlers_drink,
         register_handlers_register,
         register_handlers_stats,
+        register_handlers_settings
     ]

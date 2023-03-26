@@ -44,6 +44,7 @@ class User(Base):
     weight: Mapped[int] = mapped_column(types.Integer)
     climate: Mapped[str] = mapped_column(types.String)
     activity: Mapped[str] = mapped_column(types.String)
+    notify: Mapped[bool] = mapped_column(types.Boolean, default=True)
 
     def __repr__(self) -> str:
         return f"User(id={self.id}, name={self.name})"
@@ -57,6 +58,18 @@ class User(Base):
     @classmethod
     def all(cls) -> list[Self]:
         return Session.query(cls).all()
+
+    def toggle_notifications(self) -> bool:
+        self.notify = not self.notify
+
+        Session.commit()
+
+        return self.notify
+
+    def drop(self) -> None:
+        logger.info(f"User {self.id} has been deleted")
+        Session.delete(self)
+        Session.commit()
 
 
 class Drinks(Base):
