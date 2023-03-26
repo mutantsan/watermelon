@@ -5,6 +5,7 @@ from datetime import datetime, date
 from typing import Any
 
 import requests
+import pytz
 from aiogram import types
 
 import app.config as conf
@@ -32,7 +33,7 @@ def get_user(user_id: int) -> User | None:
 
 def update_water_consumption(user_id: int, amount: int) -> None:
     drink: Drinks = Drinks(
-        user_id=user_id, timestamp=datetime.now(), amount=amount
+        user_id=user_id, timestamp=get_current_time(), amount=amount
     )
 
     Session.add(drink)
@@ -102,3 +103,13 @@ async def send_notification(message: str, chat_id: int) -> None:
     requests.post(url, json={"chat_id": chat_id, "text": message})
 
     logger.info(f"Notification to user {chat_id} has been sent")
+
+
+def get_current_time() -> datetime:
+    from pytz import _UTCclass # type: ignore
+    from pytz.tzinfo import StaticTzInfo, DstTzInfo
+
+    kiyv_tz: _UTCclass | StaticTzInfo | DstTzInfo = pytz.timezone(
+        "Europe/Kiev"
+    )
+    return datetime.now(kiyv_tz)

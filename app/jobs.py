@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime
-
 import app.utils as utils
 import app.model as model
 import app.const as const
@@ -9,7 +7,7 @@ import app.const as const
 
 async def notify_job():
     """Notify user if he didn't drink for N hours"""
-    if await _is_night():
+    if _is_night():
         return
 
     users: list[model.User] = model.User.all()
@@ -27,7 +25,7 @@ async def notify_job():
             )
 
         time_passed: float = (
-            datetime.now() - last_drink.timestamp
+            utils.get_current_time() - last_drink.timestamp
         ).total_seconds()
         today_total: int = sum(
             d.amount for d in utils.get_today_drinks(user.id)
@@ -47,8 +45,8 @@ async def notify_job():
             )
 
 
-async def _is_night() -> bool:
+def _is_night() -> bool:
     """Check if it's too late to send notifications"""
-    current_hour: int = datetime.now().hour
+    current_hour: int = utils.get_current_time().hour
 
     return current_hour >= 22 or current_hour < 8
