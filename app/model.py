@@ -44,7 +44,7 @@ class User(Base):
     weight: Mapped[int] = mapped_column(types.Integer)
     climate: Mapped[str] = mapped_column(types.String)
     activity: Mapped[str] = mapped_column(types.String)
-    notify: Mapped[bool] = mapped_column(types.Boolean, default=True)
+    # notify: Mapped[bool] = mapped_column(types.Boolean, default=True)
 
     def __repr__(self) -> str:
         return f"User(id={self.id}, name={self.name})"
@@ -91,7 +91,7 @@ class Drinks(Base):
 
 def init_db():
     """Initialize DB tables"""
-    if is_debug_enabled():
+    if 1:
         logging.info("Database has been cleared")
         Base.metadata.drop_all(engine)
 
