@@ -50,9 +50,9 @@ async def water_drinked(message: types.Message, state: FSMContext):
 
     water_int: int = int(water_amount)
 
-    if water_int < 250:
+    if water_int < 100:
         await message.answer(
-            "Будь ласка, введіть число більше за 250мл.",
+            "Будь ласка, введіть число більше за 100мл.",
             reply_markup=await get_water_amount_keyboard(),
         )
         return
