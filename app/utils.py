@@ -39,7 +39,7 @@ def update_water_consumption(user_id: int, amount: int) -> None:
 
 
 def get_today_drinks(user_id: int) -> list[Drinks]:
-    today: date = date.today()
+    today = get_local_date()
 
     drinks: list[Drinks] = (
         Session.query(Drinks)
@@ -106,3 +106,8 @@ async def send_notification(message: str, chat_id: int) -> None:
 def get_local_time() -> datetime:
     kiyv_tz: Any = pytz.timezone("Europe/Kiev")
     return datetime.now(kiyv_tz)
+
+
+def get_local_date() -> date:
+    kiyv_tz: Any = pytz.timezone("Europe/Kiev")
+    return datetime.now(kiyv_tz).date()
