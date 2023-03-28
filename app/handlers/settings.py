@@ -22,24 +22,28 @@ def register_handlers_settings(dp: Dispatcher):
 
 
 async def cmd_settings(message: types.Message):
+    user: model.User = model.User.get(message.from_user.id)  # type: ignore
+
     await message.answer(
         "Налаштування",
-        reply_markup=_get_settigns_kb(message.from_user.id),
+        reply_markup=_get_settigns_kb(user),
     )
 
 
 async def cb_notifications(query: types.CallbackQuery):
+    user: model.User = model.User.get(query.from_user.id)  # type: ignore
+    user.toggle_notifications()
+
     await query.bot.edit_message_reply_markup(
         chat_id=query.message.chat.id,
         message_id=query.message.message_id,
-        reply_markup=_get_settigns_kb(query.from_user.id),
+        reply_markup=_get_settigns_kb(user),
     )
 
 
-def _get_settigns_kb(user_id: int) -> types.InlineKeyboardMarkup:
-    user: model.User = model.User.get(user_id)  # type: ignore
+def _get_settigns_kb(user: model.User) -> types.InlineKeyboardMarkup:
     notification_state: str = (
-        "увімкнені" if user.toggle_notifications() else "вимкнені"
+        "увімкнені" if user.notify else "вимкнені"
     )
 
     return (
