@@ -10,7 +10,7 @@ def register_handlers_stats(dp: Dispatcher):
 async def cmd_today(message: types.Message):
     user: types.User = message.from_user
 
-    amount: int = sum(d.amount for d in utils.get_today_drinks(user))
+    amount: int = sum(d.amount for d in utils.get_today_drinks(user.id))
     norm: int = utils.calculate_user_norm(user.id)
 
     await message.answer(
