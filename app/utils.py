@@ -42,12 +42,13 @@ def update_water_consumption(user_id: int, amount: int) -> None:
     Session.commit()
 
 
-def get_today_drinks(user: model.User) -> list[Drinks]:
+def get_today_drinks(user_id: int) -> list[Drinks]:
+    user: model.User = User.get(user_id)  # type: ignore
     today: date = get_local_date(user)
 
     drinks: list[Drinks] = (
         Session.query(Drinks)
-        .filter(Drinks.user_id == user.id)
+        .filter(Drinks.user_id == user_id)
         .filter(
             Drinks.timestamp.between(
                 datetime.combine(today, datetime.min.time()),
