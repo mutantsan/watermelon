@@ -42,9 +42,7 @@ async def cb_notifications(query: types.CallbackQuery):
 
 
 def _get_settigns_kb(user: model.User) -> types.InlineKeyboardMarkup:
-    notification_state: str = (
-        "увімкнені" if user.notify else "вимкнені"
-    )
+    notification_state: str = "увімкнені" if user.notify else "вимкнені"
 
     return (
         types.InlineKeyboardMarkup()
