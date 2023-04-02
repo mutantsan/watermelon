@@ -7,7 +7,11 @@ from typing import Any
 import requests
 import pytz
 from aiogram import types
+from geopy.geocoders import Nominatim
+from geopy.location import Location
+from timezonefinder import TimezoneFinder
 
+import app.model as model
 import app.config as conf
 import app.const as const
 from app.model import Session, User, Drinks
@@ -38,12 +42,12 @@ def update_water_consumption(user_id: int, amount: int) -> None:
     Session.commit()
 
 
-def get_today_drinks(user_id: int) -> list[Drinks]:
-    today = get_local_date()
+def get_today_drinks(user: model.User) -> list[Drinks]:
+    today: date = get_local_date(user)
 
     drinks: list[Drinks] = (
         Session.query(Drinks)
-        .filter(Drinks.user_id == user_id)
+        .filter(Drinks.user_id == user.id)
         .filter(
             Drinks.timestamp.between(
                 datetime.combine(today, datetime.min.time()),
@@ -103,11 +107,28 @@ async def send_notification(message: str, chat_id: int) -> None:
     logger.info(f"Notification to user {chat_id} has been sent")
 
 
-def get_local_time() -> datetime:
-    kiyv_tz: Any = pytz.timezone("Europe/Kiev")
-    return datetime.now(kiyv_tz)
+def get_local_time(user: model.User) -> datetime:
+    timezone: Any = pytz.timezone(user.timezone)
+    return datetime.now(timezone)
 
 
-def get_local_date() -> date:
-    kiyv_tz: Any = pytz.timezone("Europe/Kiev")
-    return datetime.now(kiyv_tz).date()
+def get_local_date(user: model.User) -> date:
+    timezone: Any = pytz.timezone(user.timezone)
+    return datetime.now(timezone).date()
+
+
+def get_timezone_by_city(city: str) -> str:
+    geolocator = Nominatim(user_agent="watermelon-tg-bot")
+
+    location: Location | None = geolocator.geocode(city)  # type: ignore
+
+    if not location:
+        return const.DEFAULT_TZ
+
+    tz_finder: TimezoneFinder = TimezoneFinder()
+
+    timezone: str | None = tz_finder.timezone_at(
+        lng=location.longitude, lat=location.latitude
+    )
+
+    return const.DEFAULT_TZ if not timezone else timezone
