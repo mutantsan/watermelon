@@ -47,6 +47,9 @@ class User(Base):
     notify: Mapped[bool] = mapped_column(
         types.Boolean, default=True, nullable=False
     )
+    timezone: Mapped[str] = mapped_column(
+        types.String, server_default="Europe/Kiev"
+    )
 
     def __repr__(self) -> str:
         return f"User(id={self.id}, name={self.name})"
