@@ -16,7 +16,7 @@ async def notify_job():
 
     for user in users:
         if not user.notify:
-            return
+            continue
 
         treshold: int = const.HOUR * 2
         user_drinks: list[model.Drinks] = utils.get_today_drinks(user.id)
@@ -25,9 +25,10 @@ async def notify_job():
         )
 
         if not last_drink:
-            return await utils.send_notification(
+            await utils.send_notification(
                 f"Ви сьогодні ще не пили. Зробіть це зараз /drink", user.id
             )
+            continue
 
         time_passed: float = (
             datetime.utcnow() - last_drink.timestamp
@@ -38,7 +39,7 @@ async def notify_job():
         norm: int = utils.calculate_user_norm(user.id)
 
         if today_total >= norm:
-            return
+            continue
 
         if abs(time_passed) >= treshold:
             await utils.send_notification(
