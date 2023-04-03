@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import locale
 import logging
 from datetime import datetime, date
 from typing import Any
+from io import BytesIO
 
 import requests
 import pytz
+import matplotlib.pyplot as plt
 from aiogram import types
 from geopy.geocoders import Nominatim
 from geopy.location import Location
@@ -37,7 +40,9 @@ def get_user(user_id: int) -> User | None:
 
 def update_water_consumption(user_id: int, amount: int) -> None:
     drink: Drinks = Drinks(user_id=user_id, amount=amount)
-    logger.info(f"User {user_id} has updated water consumption for {amount} ml")
+    logger.info(
+        f"User {user_id} has updated water consumption for {amount} ml"
+    )
 
     Session.add(drink)
     Session.commit()
@@ -61,6 +66,67 @@ def get_today_drinks(user_id: int) -> list[Drinks]:
     )
 
     return drinks
+
+
+def get_drink_history(user_id: int) -> list[Drinks]:
+    drinks: list[Drinks] = (
+        Session.query(Drinks)
+        .filter(Drinks.user_id == user_id)
+        .order_by(Drinks.timestamp)
+        .all()
+    )
+
+    return drinks
+
+
+def aggregate_monthly_data(drink_list: list[Drinks]) -> dict[date, int]:
+    aggregated_data: dict[date, int] = {}
+
+    for drink in drink_list:
+        drink_date: date = drink.timestamp.date()
+        aggregated_data.setdefault(drink_date, 0)
+        aggregated_data[drink_date] += drink.amount
+
+    this_month: int = datetime.now().date().month
+
+    return {
+        _date: amount
+        for _date, amount in aggregated_data.items()
+        if _date.month == this_month
+    }
+
+
+def monthly_report_plot(data: dict[date, int]) -> BytesIO:
+    """Build a monthly report plot"""
+    x_axis = []
+    y_axis = []
+
+    locale.setlocale(locale.LC_ALL, 'uk_UA.utf8')
+
+    for drink_date, amount in data.items():
+        x_axis.append(amount)
+        y_axis.append(drink_date.strftime("%e %B"))
+
+    plt.plot(
+        y_axis,
+        x_axis,
+        color="g",
+        linestyle="dashed",
+        marker="o",
+    )
+
+    plt.xticks(rotation=25)
+    plt.xlabel("Дата", fontsize=12)
+    plt.ylabel("Випито води (мл.)")
+    plt.title("Місячний звіт")
+    plt.grid()
+    plt.show()
+
+    buffer = BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+
+    return buffer
 
 
 def calculate_user_norm(user_id: int) -> int:
