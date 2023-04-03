@@ -107,6 +107,8 @@ def monthly_report_plot(data: dict[date, int]) -> BytesIO:
         x_axis.append(amount)
         y_axis.append(drink_date.strftime("%e %B"))
 
+    plt.clf()
+
     plt.plot(
         y_axis,
         x_axis,
