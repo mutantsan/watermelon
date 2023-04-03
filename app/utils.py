@@ -37,6 +37,7 @@ def get_user(user_id: int) -> User | None:
 
 def update_water_consumption(user_id: int, amount: int) -> None:
     drink: Drinks = Drinks(user_id=user_id, amount=amount)
+    logger.info(f"User {user_id} has updated water consumption for {amount} ml")
 
     Session.add(drink)
     Session.commit()
