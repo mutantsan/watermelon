@@ -68,6 +68,56 @@ def get_today_drinks(user_id: int) -> list[Drinks]:
     return drinks
 
 
+def monthly_report_plot(user_id: int) -> BytesIO:
+    """Build a monthly report plot"""
+    norm: int = calculate_user_norm(user_id)
+    drink_history: list[Drinks] = get_drink_history(user_id)
+    aggregated_data = aggregate_monthly_data(drink_history)
+
+    y_axis: list[int] = []
+    x_axis: list[str] = []
+
+    locale.setlocale(locale.LC_ALL, "uk_UA.utf8")
+
+    for drink_date, amount in aggregated_data.items():
+        y_axis.append(amount)
+        x_axis.append(drink_date.strftime("%e %B"))
+
+    # clear the previous data
+    plt.clf()
+
+    # set a points on a plot
+    colors: list[str] = ["r" if y < norm else "b" for y in y_axis]
+    plt.scatter(range(len(x_axis)), y_axis, color=colors)
+    # draw a line connecting them
+    plt.plot(x_axis, y_axis, "-g", alpha=0.3)
+
+    # add a threshold line and color span
+    plt.axhline(y=norm, color="r", linestyle="--", label="Добова норма")
+    plt.axhspan(0, norm, color="red", alpha=0.1)
+
+    # add labels and plot title
+    plt.xlabel("Дата", fontsize=12)
+    plt.ylabel("Випито води (мл.)", fontsize=12)
+    plt.title("Місячний звіт", fontsize=14)
+
+
+    # rotate x labels if there a too many of theme to fit the image
+    if len(y_axis) > 6:
+        plt.xticks(rotation=len(y_axis) * 2.85)
+
+    plt.tight_layout() # fitting the x axis labels after steep rotation
+    plt.legend(loc="upper left") # location of the legend
+    plt.margins(y=0.10) # y axis margin
+    plt.grid() # add a grid lines
+
+    buffer = BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+
+    return buffer
+
+
 def get_drink_history(user_id: int) -> list[Drinks]:
     drinks: list[Drinks] = (
         Session.query(Drinks)
@@ -94,41 +144,6 @@ def aggregate_monthly_data(drink_list: list[Drinks]) -> dict[date, int]:
         for _date, amount in aggregated_data.items()
         if _date.month == this_month
     }
-
-
-def monthly_report_plot(data: dict[date, int]) -> BytesIO:
-    """Build a monthly report plot"""
-    x_axis = []
-    y_axis = []
-
-    locale.setlocale(locale.LC_ALL, 'uk_UA.utf8')
-
-    for drink_date, amount in data.items():
-        x_axis.append(amount)
-        y_axis.append(drink_date.strftime("%e %B"))
-
-    plt.clf()
-
-    plt.plot(
-        y_axis,
-        x_axis,
-        color="g",
-        linestyle="dashed",
-        marker="o",
-    )
-
-    plt.xticks(rotation=25)
-    plt.xlabel("Дата", fontsize=12)
-    plt.ylabel("Випито води (мл.)")
-    plt.title("Місячний звіт")
-    plt.grid()
-    plt.show()
-
-    buffer = BytesIO()
-    plt.savefig(buffer, format="png")
-    buffer.seek(0)
-
-    return buffer
 
 
 def calculate_user_norm(user_id: int) -> int:

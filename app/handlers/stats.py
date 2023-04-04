@@ -22,9 +22,6 @@ async def cmd_today(message: types.Message):
 
 
 async def cmd_graph(message: types.Message):
-    drink_history: list[Drinks] = utils.get_drink_history(message.from_user.id)
-    aggregated_data = utils.aggregate_monthly_data(drink_history)
-
     await message.answer_photo(
-        utils.monthly_report_plot(aggregated_data)
+        utils.monthly_report_plot(message.from_user.id)
     )
