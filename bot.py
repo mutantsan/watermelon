@@ -24,11 +24,7 @@ async def set_commands(bot: Bot):
             BotCommand(command="/start", description="Почнімо."),
             BotCommand(command="/register", description="Реєстрація."),
             BotCommand(command="/drink", description="Випити водички."),
-            BotCommand(
-                command="/today", description="Скільки я сьогодні випив?"
-            ),
-            BotCommand(command="/graph", description="Місячний звіт."),
-            BotCommand(command="/settings", description="Налаштування."),
+            BotCommand(command="/stats", description="Статистика."),
             BotCommand(command="/cancel", description="Скасувати дію."),
         ]
     )
