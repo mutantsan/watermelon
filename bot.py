@@ -22,9 +22,9 @@ async def set_commands(bot: Bot):
     await bot.set_my_commands(
         [
             BotCommand(command="/start", description="Почнімо."),
-            BotCommand(command="/register", description="Реєстрація."),
             BotCommand(command="/drink", description="Випити водички."),
             BotCommand(command="/stats", description="Статистика."),
+            BotCommand(command="/settings", description="Налаштування."),
             BotCommand(command="/cancel", description="Скасувати дію."),
         ]
     )
