@@ -21,7 +21,15 @@ async def cmd_start(message: types.Message, state: FSMContext):
 
     user: types.User = message.from_user
 
-    await message.answer(f"Вітаю, {utils.get_user_appeal(user)}!")
+    await message.answer(
+f"""Вітаю, {utils.get_user_appeal(user)}! Почнімо.
+
+Для того, щоб дізнатися скільки води ви випили сьогодні - натисніть /today
+Щоб внести випиту воду, натисніть /drink
+Щоб переглянути вашу статистику, натисніть /stats
+Ну а налаштування ви можете знайти тут /settings
+    """
+    )
 
 
 async def cmd_cancel(message: types.Message, state: FSMContext):

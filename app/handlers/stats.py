@@ -18,7 +18,7 @@ def register_handlers_stats(dp: Dispatcher):
 
 async def cmd_stats(message: types.Message):
     await message.answer(
-        "Налаштування",
+        "Статистика",
         reply_markup=(
             types.InlineKeyboardMarkup()
             .row(
