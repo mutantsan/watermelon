@@ -148,6 +148,7 @@ def aggregate_monthly_data(drink_list: list[Drinks]) -> dict[date, int]:
 
 def calculate_user_norm(user_id: int) -> int:
     """Calculate a daily water consumption for a user
+    Use custom daily norm if the user has set it and do not calculate anything.
 
     Water consumption = N kg x 35 ml/kg/day x climate x activity
 
@@ -158,6 +159,9 @@ def calculate_user_norm(user_id: int) -> int:
 
     if not user:
         return 0
+
+    if user.norm:
+        return user.norm
 
     weight: int = user.weight
     activity_value = const.ACTIVITY_MAP[user.activity]

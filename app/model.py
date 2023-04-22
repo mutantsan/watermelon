@@ -50,6 +50,7 @@ class User(Base):
     timezone: Mapped[str] = mapped_column(
         types.String, server_default="Europe/Kiev"
     )
+    norm: Mapped[int] = mapped_column(types.Integer, nullable=True)
 
     def __repr__(self) -> str:
         return f"User(id={self.id}, name={self.name})"
@@ -66,15 +67,25 @@ class User(Base):
 
     def toggle_notifications(self) -> bool:
         self.notify = not self.notify
+        logger.info(f"Toggle notifications for user {self.id}: {self.notify}.")
 
         Session.commit()
 
         return self.notify
 
     def drop(self) -> None:
-        logger.info(f"User {self.id} has been deleted")
         Session.delete(self)
+        logger.info(f"User {self.id} has been deleted")
+
         Session.commit()
+
+    def set_norm(self, norm: int) -> int:
+        self.norm = norm
+        logger.info(f"Setting custom daily norm for user {self.id}")
+
+        Session.commit()
+
+        return self.norm
 
 
 class Drinks(Base):
