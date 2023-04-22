@@ -36,6 +36,7 @@ def register_handlers_settings(dp: Dispatcher):
     dp.callback_query_handler(lambda c: c.data == "user_update")(
         cb_user_update
     )
+
     dp.callback_query_handler(lambda c: c.data == "daily_norm")(cb_daily_norm)
     dp.register_message_handler(confirm_norm, state=DailyNorm.wait_for_input)
 
@@ -46,6 +47,9 @@ def register_handlers_settings(dp: Dispatcher):
 
     dp.callback_query_handler(lambda c: c.data == "n_frequency")(
         cb_n_frequency
+    )
+    dp.register_message_handler(
+        confirm_n_frequency, state=NotificationFrequency.wait_for_input
     )
 
 
@@ -236,4 +240,41 @@ def _calc_minutes(time: time) -> int:
 
 
 async def cb_n_frequency(query: types.CallbackQuery, state: FSMContext):
-    pass
+    """Set a notification frequency for a user"""
+    settings: model.NotificationSettings = (
+        utils.get_or_create_user_notification_settings(query.message.chat.id)
+    )
+
+    await query.message.answer(
+        f"Зараз сповіщення приходять кожні {settings.frequency} хвилин"
+    )
+    await query.message.answer(
+        "Введіть нову частоту у хвилинах (ціле число, більше 5)"
+    )
+    await query.answer(await NotificationFrequency.wait_for_input.set())
+
+
+async def confirm_n_frequency(message: types.Message, state: FSMContext):
+    new_frequency: str = message.text
+
+    if (
+        not new_frequency.isdigit()
+        or int(new_frequency) < 1
+        or int(new_frequency) > 60
+    ):
+        await message.answer(
+            "Введіть нову частоту у хвилинах (ціле число, від 5 до 60)"
+        )
+        return await NotificationFrequency.wait_for_input.set()
+
+    settings: model.NotificationSettings = (
+        utils.get_or_create_user_notification_settings(message.from_user.id)
+    )
+
+    settings.update_frequency(int(new_frequency))
+
+    await state.finish()
+
+    await message.answer(
+        f"Встановлена нова частота сповіщень - {new_frequency}!"
+    )

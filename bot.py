@@ -58,7 +58,7 @@ async def main():
 
     # Setup task scheduler
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(jobs.notify_job, "interval", minutes=15)
+    scheduler.add_job(jobs.notify_job, "interval", minutes=5)
     scheduler.start()
 
     await dp.skip_updates()

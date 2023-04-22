@@ -13,6 +13,7 @@ from sqlalchemy.orm import (
     mapped_column,
     sessionmaker,
     scoped_session,
+    relationship,
 )
 from typing_extensions import Self
 
@@ -127,6 +128,8 @@ class NotificationSettings(Base):
         types.DateTime, nullable=True
     )
 
+    user = relationship(User)
+
     @classmethod
     def get(cls, user_reference: Optional[int]) -> Optional[Self]:
         query = Session.query(cls).autoflush(False)
@@ -134,8 +137,8 @@ class NotificationSettings(Base):
         return query.one_or_none()
 
     def update_range(self, start: int, end: int) -> None:
-        self.start_time = start
-        self.end_time = end
+        self.start_time: int = start
+        self.end_time: int = end
 
         logger.info(
             f"User {self.user_id} has updated notification time range:"
@@ -147,13 +150,35 @@ class NotificationSettings(Base):
     def get_humanized_n_range(self) -> str:
         hours_start: int = self.start_time // 60
         minutes_start: int = self.start_time % 60
-        string_start: str = f"{hours_start}.{minutes_start}" if minutes_start else f"{hours_start}"
+        string_start: str = (
+            f"{hours_start}.{minutes_start}"
+            if minutes_start
+            else f"{hours_start}"
+        )
 
         hours_end: int = self.end_time // 60
         minutes_end: int = self.end_time % 60
-        string_end: str = f"{hours_end}.{minutes_end}" if minutes_end else f"{hours_end}"
+        string_end: str = (
+            f"{hours_end}.{minutes_end}" if minutes_end else f"{hours_end}"
+        )
 
         return f"{string_start}-{string_end}"
+
+    def update_notified_at(self) -> None:
+        self.notified_at = datetime.utcnow()
+        Session.commit()
+
+    def update_frequency(self, frequency: int) -> None:
+        old_frequency: int = self.frequency
+        self.frequency: int = frequency
+
+        logger.info(
+            f"User {self.user_id} has updated notification frequency: "
+            f"From {old_frequency} to {self.frequency}."
+        )
+
+        Session.commit()
+
 
 def init_db():
     """Initialize DB tables"""
