@@ -107,6 +107,54 @@ class Drinks(Base):
         )
 
 
+class NotificationSettings(Base):
+    __tablename__ = "notification_settings"
+
+    id: Mapped[str] = mapped_column(
+        types.Text(length=36), primary_key=True, default=lambda: str(uuid4())
+    )
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    start_time: Mapped[int] = mapped_column(
+        types.Integer, nullable=False, default=480
+    )
+    end_time: Mapped[int] = mapped_column(
+        types.Integer, nullable=False, default=1320
+    )
+    frequency: Mapped[int] = mapped_column(
+        types.Integer, nullable=False, default=15
+    )
+    notified_at: Mapped[datetime] = mapped_column(
+        types.DateTime, nullable=True
+    )
+
+    @classmethod
+    def get(cls, user_reference: Optional[int]) -> Optional[Self]:
+        query = Session.query(cls).autoflush(False)
+        query = query.filter(cls.user_id == user_reference)
+        return query.one_or_none()
+
+    def update_range(self, start: int, end: int) -> None:
+        self.start_time = start
+        self.end_time = end
+
+        logger.info(
+            f"User {self.user_id} has updated notification time range:"
+            f" {start} to {end}."
+        )
+
+        Session.commit()
+
+    def get_humanized_n_range(self) -> str:
+        hours_start: int = self.start_time // 60
+        minutes_start: int = self.start_time % 60
+        string_start: str = f"{hours_start}.{minutes_start}" if minutes_start else f"{hours_start}"
+
+        hours_end: int = self.end_time // 60
+        minutes_end: int = self.end_time % 60
+        string_end: str = f"{hours_end}.{minutes_end}" if minutes_end else f"{hours_end}"
+
+        return f"{string_start}-{string_end}"
+
 def init_db():
     """Initialize DB tables"""
     if is_debug_enabled():
