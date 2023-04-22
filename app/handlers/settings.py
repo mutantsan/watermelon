@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from typing import cast
+from datetime import time, datetime
+
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -37,13 +40,17 @@ def register_handlers_settings(dp: Dispatcher):
     dp.register_message_handler(confirm_norm, state=DailyNorm.wait_for_input)
 
     dp.callback_query_handler(lambda c: c.data == "n_time")(cb_n_time)
+    dp.register_message_handler(
+        confirm_n_time, state=NotificationRange.wait_for_input
+    )
+
     dp.callback_query_handler(lambda c: c.data == "n_frequency")(
         cb_n_frequency
     )
 
 
 async def cmd_settings(message: types.Message):
-    user: model.User = model.User.get(message.from_user.id)  # type: ignore
+    user: model.User = cast(model.User, model.User.get(message.from_user.id))
 
     await message.answer(
         "Налаштування",
@@ -52,7 +59,7 @@ async def cmd_settings(message: types.Message):
 
 
 async def cb_notifications(query: types.CallbackQuery):
-    user: model.User = model.User.get(query.from_user.id)  # type: ignore
+    user: model.User = cast(model.User, model.User.get(query.from_user.id))
     user.toggle_notifications()
 
     await query.bot.edit_message_reply_markup(
@@ -111,7 +118,7 @@ async def cb_close(query: types.CallbackQuery):
 
 
 async def cb_user_update(query: types.CallbackQuery, state: FSMContext):
-    user: model.User = model.User.get(query.from_user.id)  # type: ignore
+    user: model.User = cast(model.User, model.User.get(query.from_user.id))
     user.drop()
 
     await query.bot.edit_message_reply_markup(
@@ -140,7 +147,7 @@ async def confirm_norm(message: types.Message, state: FSMContext):
         )
         return await DailyNorm.wait_for_input.set()
 
-    user: model.User = model.User.get(message.from_user.id)  # type: ignore
+    user: model.User = cast(model.User, model.User.get(message.from_user.id))
     user.set_norm(int(new_norm))
 
     await state.finish()
@@ -149,7 +156,83 @@ async def confirm_norm(message: types.Message, state: FSMContext):
 
 
 async def cb_n_time(query: types.CallbackQuery, state: FSMContext):
-    pass
+    """Set a notification time range"""
+    settings: model.NotificationSettings = (
+        utils.get_or_create_user_notification_settings(query.message.chat.id)
+    )
+
+    await query.message.answer(
+        f"Поточний діапазон нотифікацій: {settings.get_humanized_n_range()}"
+    )
+    await query.message.answer(
+        "Введіть новий діапазон у якій будуть присилатися сповіщення. Приклад:"
+        " 7.30-21"
+    )
+    await query.answer(await NotificationRange.wait_for_input.set())
+
+
+async def confirm_n_time(message: types.Message, state: FSMContext):
+    new_range: str = message.text
+
+    try:
+        start, end = new_range.split("-")
+    except ValueError:
+        await message.answer("Діпазон має бути у форматі 7.30-21.45.")
+        return await NotificationRange.wait_for_input.set()
+
+    if not _is_int_or_float(start) or not _is_int_or_float(end):
+        await message.answer("Діпазон має бути у форматі 7.30-21.45.")
+        return await NotificationRange.wait_for_input.set()
+
+    try:
+        start_time: time = _string_to_time(start)
+        end_time: time = _string_to_time(end)
+    except ValueError:
+        await message.answer(
+            "Не виходить спарсити час. Перевірти формат введення, приклад:"
+            " 7.30-21.45 або 8-22. Максимальний кінцевий час 23.59"
+        )
+        return await NotificationRange.wait_for_input.set()
+
+    if start_time > end_time:
+        await message.answer(
+            "Початковий час не може бути більший за кінцевий!"
+            " 7.30-21.45 або 8-22"
+        )
+        return await NotificationRange.wait_for_input.set()
+
+    start_minutes = _calc_minutes(start_time)
+    end_minutes = _calc_minutes(end_time)
+
+    settings: model.NotificationSettings = (
+        utils.get_or_create_user_notification_settings(message.from_user.id)
+    )
+
+    settings.update_range(start_minutes, end_minutes)
+
+    await state.finish()
+
+    await message.answer(
+        f"Встановлений новий діапазон для сповіщень - З {start} до {end}!"
+    )
+
+
+def _is_int_or_float(number: str) -> bool:
+    try:
+        float(number)
+    except ValueError:
+        return False
+
+    return True
+
+
+def _string_to_time(t: str) -> time:
+    _format: str = "%H.%M" if "." in t else "%H"
+    return datetime.strptime(t.strip(), _format).time()
+
+
+def _calc_minutes(time: time) -> int:
+    return time.hour * 60 + time.minute
 
 
 async def cb_n_frequency(query: types.CallbackQuery, state: FSMContext):

@@ -3,7 +3,7 @@ from __future__ import annotations
 import locale
 import logging
 from datetime import datetime, date
-from typing import Any
+from typing import Any, Optional
 from io import BytesIO
 
 import requests
@@ -17,7 +17,7 @@ from timezonefinder import TimezoneFinder
 import app.model as model
 import app.config as conf
 import app.const as const
-from app.model import Session, User, Drinks
+from app.model import Session, User, Drinks, NotificationSettings
 
 
 logger = logging.getLogger(__name__)
@@ -101,15 +101,14 @@ def monthly_report_plot(user_id: int) -> BytesIO:
     plt.ylabel("Випито води (мл.)", fontsize=12)
     plt.title("Місячний звіт", fontsize=14)
 
-
     # rotate x labels if there a too many of theme to fit the image
     if len(y_axis) > 6:
         plt.xticks(rotation=len(y_axis) * 2.85)
 
-    plt.tight_layout() # fitting the x axis labels after steep rotation
-    plt.legend(loc="upper left") # location of the legend
-    plt.margins(y=0.10) # y axis margin
-    plt.grid() # add a grid lines
+    plt.tight_layout()  # fitting the x axis labels after steep rotation
+    plt.legend(loc="upper left")  # location of the legend
+    plt.margins(y=0.10)  # y axis margin
+    plt.grid()  # add a grid lines
 
     buffer = BytesIO()
     plt.savefig(buffer, format="png")
@@ -221,3 +220,20 @@ def get_timezone_by_city(city: str) -> str:
     )
 
     return const.DEFAULT_TZ if not timezone else timezone
+
+
+def get_or_create_user_notification_settings(user_id: int) -> NotificationSettings:
+    settings: Optional[NotificationSettings] = NotificationSettings.get(user_id)
+
+    if settings:
+        return settings
+
+    init_settings: NotificationSettings = NotificationSettings(
+        user_id=user_id
+    )
+
+    model.Session.add(init_settings)
+    model.Session.commit()
+
+    logger.info(f"Settings for user {user_id} has been initialized.")
+    return init_settings
