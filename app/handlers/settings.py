@@ -9,6 +9,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 
 import app.model as model
 import app.utils as utils
+import app.const as const
 from app.handlers.register import register_start
 
 
@@ -249,7 +250,8 @@ async def cb_n_frequency(query: types.CallbackQuery, state: FSMContext):
         f"Зараз сповіщення приходять кожні {settings.frequency} хвилин"
     )
     await query.message.answer(
-        "Введіть нову частоту у хвилинах (ціле число, більше 5)"
+        "Введіть нову частоту у хвилинах (ціле число, від"
+        f" {const.NOTIFY_FREQUENCY_MIN} до {const.NOTIFY_FREQUENCY_MAX})"
     )
     await query.answer(await NotificationFrequency.wait_for_input.set())
 
@@ -259,11 +261,12 @@ async def confirm_n_frequency(message: types.Message, state: FSMContext):
 
     if (
         not new_frequency.isdigit()
-        or int(new_frequency) < 1
-        or int(new_frequency) > 60
+        or int(new_frequency) < const.NOTIFY_FREQUENCY_MIN
+        or int(new_frequency) > const.NOTIFY_FREQUENCY_MAX
     ):
         await message.answer(
-            "Введіть нову частоту у хвилинах (ціле число, від 5 до 60)"
+            "Частота має бути цілим числом в диапазоні від"
+            f" {const.NOTIFY_FREQUENCY_MIN} до {const.NOTIFY_FREQUENCY_MAX}"
         )
         return await NotificationFrequency.wait_for_input.set()
 
