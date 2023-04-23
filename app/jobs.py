@@ -49,6 +49,9 @@ def _is_time_to_notify(
     n_settings: model.NotificationSettings,
 ) -> bool:
     """Check if enough time has passed from the previous notification"""
+    if not n_settings.notified_at:
+        return True
+
     frequency: int = n_settings.frequency
 
     minutes_passed: float = (
