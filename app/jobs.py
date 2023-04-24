@@ -76,6 +76,8 @@ async def _notify_user(
     last: model.Drinks | None = user_drinks[-1] if user_drinks else None
 
     if not last:
+        n_settings.update_notified_at()
+
         return await utils.send_notification(
             f"Ви сьогодні ще не пили. Зробіть це зараз /drink", user.id
         )

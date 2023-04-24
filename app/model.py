@@ -137,8 +137,8 @@ class NotificationSettings(Base):
         return query.one_or_none()
 
     def update_range(self, start: int, end: int) -> None:
-        self.start_time: int = start
-        self.end_time: int = end
+        self.start_time = start
+        self.end_time = end
 
         logger.info(
             f"User {self.user_id} has updated notification time range:"
@@ -170,7 +170,7 @@ class NotificationSettings(Base):
 
     def update_frequency(self, frequency: int) -> None:
         old_frequency: int = self.frequency
-        self.frequency: int = frequency
+        self.frequency = frequency
 
         logger.info(
             f"User {self.user_id} has updated notification frequency: "
