@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional
+import os
+import json
+import pickle
+from typing import Optional, Any
 from datetime import datetime
 from uuid import uuid4
 
@@ -18,7 +21,7 @@ from sqlalchemy.orm import (
 from typing_extensions import Self
 
 from app.config import is_debug_enabled
-
+from app.types import Fact
 
 logger = logging.getLogger(__name__)
 engine = create_engine("sqlite:///water.sqlite")
@@ -106,6 +109,44 @@ class Drinks(Base):
             f"User(id={self.user_id}, date={self.timestamp},"
             f" amount={self.amount})"
         )
+
+
+class WaterFacts(Base):
+    __tablename__ = "water_facts"
+
+    id: Mapped[str] = mapped_column(
+        types.Text(length=36), primary_key=True, default=lambda: str(uuid4())
+    )
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    used_facts: Mapped[bytes] = mapped_column(types.LargeBinary)
+
+    @classmethod
+    def get(cls, user_reference: Optional[int]) -> Optional[Self]:
+        query: Any = Session.query(cls).autoflush(False)
+        query: Any = query.filter(cls.user_id == user_reference)
+        return query.one_or_none()
+
+    def get_fact(self) -> Optional[str]:
+        module_dir = os.path.dirname(__file__)
+        file_path = os.path.join(module_dir, "data", "water_facts.json")
+
+        with open(file_path, "r") as f:
+            facts_json: list[Fact] = json.load(f)
+
+        used_facts: list[int] = (
+            pickle.loads(self.used_facts) if self.used_facts else []
+        )
+
+        for fact in facts_json:
+            if fact["id"] in used_facts:
+                continue
+
+            used_facts.append(fact["id"])
+            self.used_facts = pickle.dumps(used_facts)
+
+            Session.commit()
+
+            return fact["text"]
 
 
 class NotificationSettings(Base):
