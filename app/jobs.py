@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
+from typing import Optional
 
 import app.utils as utils
 import app.model as model
@@ -9,6 +10,45 @@ import app.const as const
 
 
 logger = logging.getLogger(__name__)
+
+
+async def water_facts():
+    users: list[model.User] = model.User.all()
+
+    for user in users:
+        if not user.notify:
+            logger.info(
+                f"User {user.id} {user.name} has turned off his notifications."
+                " Skipping."
+            )
+            continue
+
+        n_settings: model.NotificationSettings = (
+            utils.get_or_create_user_notification_settings(user.id)
+        )
+
+        if _is_in_notification_range(user, n_settings):
+            logger.info(
+                "User doesn't want to accept any notifications now. Skipping."
+                f" {user.id} {user.name}"
+            )
+            continue
+
+        local_time: datetime = utils.get_local_time(user)
+
+        if local_time.hour != const.NOON:
+            continue
+
+        facts_state: model.WaterFacts = utils.get_water_facts_state(user.id)
+        fact: Optional[str] = facts_state.get_fact()
+
+        if not fact:
+            continue
+
+        await utils.send_notification(
+            f"Цікавий факт: {fact}",
+            user.id,
+        )
 
 
 async def notify_job():

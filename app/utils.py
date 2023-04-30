@@ -17,7 +17,7 @@ from timezonefinder import TimezoneFinder
 import app.model as model
 import app.config as conf
 import app.const as const
-from app.model import Session, User, Drinks, NotificationSettings
+from app.model import Session, User, Drinks, NotificationSettings, WaterFacts
 
 
 logger = logging.getLogger(__name__)
@@ -222,18 +222,35 @@ def get_timezone_by_city(city: str) -> str:
     return const.DEFAULT_TZ if not timezone else timezone
 
 
-def get_or_create_user_notification_settings(user_id: int) -> NotificationSettings:
-    settings: Optional[NotificationSettings] = NotificationSettings.get(user_id)
+def get_or_create_user_notification_settings(
+    user_id: int,
+) -> NotificationSettings:
+    settings: Optional[NotificationSettings] = NotificationSettings.get(
+        user_id
+    )
 
     if settings:
         return settings
 
-    init_settings: NotificationSettings = NotificationSettings(
-        user_id=user_id
-    )
+    init_settings: NotificationSettings = NotificationSettings(user_id=user_id)
 
     model.Session.add(init_settings)
     model.Session.commit()
 
     logger.info(f"Settings for user {user_id} has been initialized.")
     return init_settings
+
+
+def get_water_facts_state(user_id: int) -> WaterFacts:
+    facts_state: Optional[WaterFacts] = WaterFacts.get(user_id)
+
+    if facts_state:
+        return facts_state
+
+    init_state: WaterFacts = WaterFacts(user_id=user_id)
+
+    model.Session.add(init_state)
+    model.Session.commit()
+
+    logger.info(f"Water facts for user {user_id} has been initialized.")
+    return init_state
