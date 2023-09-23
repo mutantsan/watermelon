@@ -4,7 +4,7 @@ import logging
 import os
 import json
 import pickle
-from typing import Optional, Any
+from typing import Optional, Any, cast
 from datetime import datetime
 from uuid import uuid4
 
@@ -221,6 +221,42 @@ class NotificationSettings(Base):
         Session.commit()
 
 
+class DrinkType(Base):
+    __tablename__ = "drink_type"
+
+    id: Mapped[str] = mapped_column(
+        types.Text(length=36), primary_key=True, default=lambda: str(uuid4())
+    )
+    label: Mapped[str] = mapped_column(types.Text, nullable=False)
+    coefficient: Mapped[int] = mapped_column(types.Integer, nullable=False)
+
+    @classmethod
+    def get(cls, type_id: str) -> Optional[Self]:
+        query: Any = Session.query(cls).autoflush(False)
+        query: Any = query.filter(cls.id == type_id)
+        return query.one_or_none()
+
+    @classmethod
+    def populate_defaults(cls) -> None:
+        """Populate default values if they do not exists"""
+        DEFAULTS: list[dict[str, str | int]] = [
+            {"id": "water", "label": "Вода", "coefficient": 100},
+            {"id": "coffee", "label": "Кава", "coefficient": 60},
+            {"id": "black tea", "label": "Чорний чай", "coefficient": 90},
+            {"id": "green tea", "label": "Зелений чай", "coefficient": 90},
+            {"id": "herb tea", "label": "Трав'яний чай", "coefficient": 90},
+            {"id": "juice", "label": "Сік", "coefficient": 95},
+            {"id": "beer", "label": "Пиво", "coefficient": -40},
+            {"id": "wine", "label": "Вино", "coefficient": -95},
+        ]
+
+        for drink_type in DEFAULTS:
+            if not cls.get(cast(str, drink_type["id"])):
+                Session.add(cls(**drink_type))
+
+        Session.commit()
+
+
 def init_db():
     """Initialize DB tables"""
     if is_debug_enabled():
@@ -228,4 +264,7 @@ def init_db():
         Base.metadata.drop_all(engine)
 
     Base.metadata.create_all(engine)
+
+    DrinkType.populate_defaults()
+
     logging.info("Database has been initialized")
