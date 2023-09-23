@@ -17,7 +17,14 @@ from timezonefinder import TimezoneFinder
 import app.model as model
 import app.config as conf
 import app.const as const
-from app.model import Session, User, Drinks, NotificationSettings, WaterFacts
+from app.model import (
+    Session,
+    User,
+    Drinks,
+    NotificationSettings,
+    WaterFacts,
+    DrinkType,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -38,7 +45,7 @@ def get_user(user_id: int) -> User | None:
     return User.get(user_id)
 
 
-def update_water_consumption(user_id: int, amount: int) -> None:
+def update_drink_consumption(user_id: int, amount: int) -> None:
     drink: Drinks = Drinks(user_id=user_id, amount=amount)
     logger.info(
         f"User {user_id} has updated water consumption for {amount} ml"
@@ -254,3 +261,15 @@ def get_water_facts_state(user_id: int) -> WaterFacts:
 
     logger.info(f"Water facts for user {user_id} has been initialized.")
     return init_state
+
+
+def get_drink_types() -> list[str]:
+    """Return a list of drink type labels"""
+    dts = DrinkType.all()
+
+    return [dt.label for dt in dts]
+
+
+def get_drink_type_by_label(label: str) -> DrinkType | None:
+    """Return a drink type by label"""
+    return DrinkType.get_by_label(label)

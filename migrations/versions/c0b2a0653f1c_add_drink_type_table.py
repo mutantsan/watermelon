@@ -20,7 +20,7 @@ def upgrade() -> None:
     op.create_table(
         "drink_type",
         sa.Column("id", sa.Text(length=36), nullable=False),
-        sa.Column("label", sa.Text(), nullable=False),
+        sa.Column("label", sa.Text(), nullable=False, unique=True),
         sa.Column("coefficient", sa.Integer(), nullable=False),
     )
 

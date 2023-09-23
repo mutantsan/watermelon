@@ -227,7 +227,7 @@ class DrinkType(Base):
     id: Mapped[str] = mapped_column(
         types.Text(length=36), primary_key=True, default=lambda: str(uuid4())
     )
-    label: Mapped[str] = mapped_column(types.Text, nullable=False)
+    label: Mapped[str] = mapped_column(types.Text, nullable=False, unique=True)
     coefficient: Mapped[int] = mapped_column(types.Integer, nullable=False)
 
     @classmethod
@@ -235,6 +235,16 @@ class DrinkType(Base):
         query: Any = Session.query(cls).autoflush(False)
         query: Any = query.filter(cls.id == type_id)
         return query.one_or_none()
+
+    @classmethod
+    def get_by_label(cls, type_label: str) -> Optional[Self]:
+        query: Any = Session.query(cls).autoflush(False)
+        query: Any = query.filter(cls.label == type_label)
+        return query.one_or_none()
+
+    @classmethod
+    def all(cls) -> list[Self]:
+        return Session.query(cls).all()
 
     @classmethod
     def populate_defaults(cls) -> None:
