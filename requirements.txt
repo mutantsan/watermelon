@@ -7,5 +7,4 @@ requests
 pytz
 geopy
 timezonefinder
-pytest
 matplotlib
