@@ -252,9 +252,7 @@ class DrinkType(Base):
         DEFAULTS: list[dict[str, str | int]] = [
             {"id": "water", "label": "Вода", "coefficient": 100},
             {"id": "coffee", "label": "Кава", "coefficient": 60},
-            {"id": "black tea", "label": "Чорний чай", "coefficient": 90},
-            {"id": "green tea", "label": "Зелений чай", "coefficient": 90},
-            {"id": "herb tea", "label": "Трав'яний чай", "coefficient": 90},
+            {"id": "tea", "label": "Чай", "coefficient": 90},
             {"id": "juice", "label": "Сік", "coefficient": 95},
             {"id": "beer", "label": "Пиво", "coefficient": -40},
             {"id": "wine", "label": "Вино", "coefficient": -95},

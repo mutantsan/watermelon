@@ -33,11 +33,14 @@ async def get_drink_amount_kb() -> types.ReplyKeyboardMarkup:
 
 
 async def get_drink_types_kb() -> types.ReplyKeyboardMarkup:
-    kb = types.ReplyKeyboardMarkup(resize_keyboard=True)  # type: ignore
+    kb = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)  # type: ignore
     type_labels = utils.get_drink_types()
 
-    for label in type_labels:
-        kb.add(label)
+    for i in range(0, len(type_labels), 2):
+        if i + 1 < len(type_labels):
+            kb.add(*[type_labels[i], type_labels[i + 1]])
+        else:
+            kb.add(type_labels[i])
 
     return kb
 
